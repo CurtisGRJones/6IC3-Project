@@ -3,4 +3,4 @@
 ## Goal
 
 ## Resources
- - (Arduino)[https://docs.arduino.cc/learn/communication/modbus]
+ - [Arduino](https://docs.arduino.cc/learn/communication/modbus)
