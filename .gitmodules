@@ -1,9 +1,9 @@
 [submodule "main/libraries/ArduinoModbus"]
-	path = main/libraries/ArduinoModbus
+	path = src/libraries/ArduinoModbus
 	url = https://github.com/arduino-libraries/ArduinoModbus.git
 [submodule "main/libraries/ArduinoRS485"]
-	path = main/libraries/ArduinoRS485
+	path = src/libraries/ArduinoRS485
 	url = https://github.com/arduino-libraries/ArduinoRS485.git
 [submodule "main/libraries/Ethernet"]
-	path = main/libraries/Ethernet
+	path = src/libraries/Ethernet
 	url = https://github.com/arduino-libraries/Ethernet.git
