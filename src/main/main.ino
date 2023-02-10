@@ -1,6 +1,9 @@
-#include "./libraries/ArduinoRS485/src/ArduinoRS485.h" // ArduinoModbus depends on the ArduinoRS485 library
-#include "./libraries/ArduinoModbus/src/ModbusTCPServer.h" 
-#include "./libraries/Ethernet/src/Ethernet.h"
+// TODO ensure all github repos and versions are refenced in the README.md
+
+#include <ArduinoRS485.h> // ArduinoModbus depends on the ArduinoRS485 library
+#include <ArduinoModbus.h> // v1.0.8
+#include <SPI.h> // Ethernet depends on the API library
+#include <Ethernet.h> // v2.0.1
 
 byte mac[] = {
   0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
@@ -18,7 +21,7 @@ ModbusTCPServer modbusTCPServer;
   Tasks: 
     - Create "Connected" LED to show if ethernet is working correctly
     - Create "Processing" LED to show when the 
-
+    - Detemine if async should be used
 */
 
 void doNothing() {
