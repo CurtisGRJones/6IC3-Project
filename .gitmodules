@@ -4,3 +4,6 @@
 [submodule "main/libraries/ArduinoRS485"]
 	path = main/libraries/ArduinoRS485
 	url = https://github.com/arduino-libraries/ArduinoRS485.git
+[submodule "main/libraries/Ethernet"]
+	path = main/libraries/Ethernet
+	url = https://github.com/arduino-libraries/Ethernet.git
