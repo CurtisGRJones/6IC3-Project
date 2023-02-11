@@ -7,8 +7,7 @@
 
 // TODO make mac, ip, dns, gateway, and subnet read from a json or yaml file
 
-byte mac[] = {
-  0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
+byte mac[] = { 0xA8, 0x61, 0x0A, 0xAE, 0xAB, 0x14 };
 IPAddress ip(192, 168, 1, 100);
 IPAddress myDns(192, 168, 1, 1);
 IPAddress gateway(192, 168, 1, 1);
