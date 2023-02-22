@@ -6,7 +6,7 @@
 #include <Ethernet.h> // v2.0.1
 
 // TODO make mac, ip, dns, gateway, and subnet read from a json or yaml file
-
+NetworkConfig networkConfig = loadNetworkConfig('networkConfig.json')
 byte mac[] = { 0xA8, 0x61, 0x0A, 0xAE, 0xAB, 0x14 };
 IPAddress ip(192, 168, 1, 100);
 IPAddress myDns(192, 168, 1, 1);
