@@ -32,6 +32,6 @@ misc prices of equiptment as a POC of this process
 ## Contributors
 
 [Curtis Jones 400127724](https://github.com/CurtisGRJones) - Development Lead </br>
-[Carson Scholz](https://github.com/carsonscholz) - Project Lead
+[Carson Scholz 400072891](https://github.com/carsonscholz) - Project Lead
 
 
