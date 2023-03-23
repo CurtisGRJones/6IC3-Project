@@ -57,15 +57,14 @@ void setup() {
 
   server.begin();
 
-  Serial.print("Arduino Slave Address:");
+  Serial.print("Arduino Modbus Slave Address:");
   Serial.println(Ethernet.localIP());
   if (!modbusTCPServer.begin()) {
     Serial.println("Failed to initalize Modbus TCP");
     doNothing();
   }
 
-  // TODO determine if more than 5 coild needed
-  modbusTCPServer.configureCoils(0x00, 1);
+  modbusTCPServer.configureCoils(0x00, 5);
 }
 
 void loop() {
@@ -78,9 +77,25 @@ void loop() {
     modbusTCPServer.accept(client);
 
     while (client.connected()) {
+      modbusTCPServer.poll()
+
       // TODO set/read all apropriate pins here
     }
 
     Serial.println("Client Disconected");
+  }
+}
+
+void logCoilsSerial() {
+  int coilValues[] = {
+    modbusTCPServer.coilRead(0x00),
+    modbusTCPServer.coilRead(0x01),
+    modbusTCPServer.coilRead(0x02),
+    modbusTCPServer.coilRead(0x03),
+    modbusTCPServer.coilRead(0x04),
+  }
+
+  for ( int i = 0; i < 5; i++ ) {
+    Serial.println("Coil " + String(i) + " value: " + String(coilValues))
   }
 }
