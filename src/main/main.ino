@@ -9,7 +9,7 @@
   Address Pin Device
   0x00        Push Button
   0x01        LED
-  0x02        Light Sensor
+  0x02        Light Sensor/Potentiometer
   0x03        Servo
 */
 
