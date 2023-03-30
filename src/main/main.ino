@@ -5,7 +5,13 @@
 #include <SPI.h> // Ethernet depends on the API library
 #include <Ethernet.h> // v2.0.1
 
-// TODO make mac, ip, dns, gateway, and subnet read from a json or yaml file
+/* 
+  Address Pin Device
+  0x00        Push Button
+  0x01        LED
+  0x02        Light Sensor
+  0x03        Servo
+*/
 
 byte mac[] = { 0xA8, 0x61, 0x0A, 0xAE, 0xAB, 0x14 };
 IPAddress ip(192, 168, 1, 100);
@@ -13,7 +19,7 @@ IPAddress myDns(192, 168, 1, 1);
 IPAddress gateway(192, 168, 1, 1);
 IPAddress subnet(255, 255, 255, 0);
 
-
+// Use port 502
 EthernetServer server(502);
 ModbusTCPServer modbusTCPServer;
 
@@ -57,14 +63,17 @@ void setup() {
 
   server.begin();
 
-  Serial.print("Arduino Modbus Slave Address:");
-  Serial.println(Ethernet.localIP());
+  Serial.print("Arduino Modbus Slave Address: ");
+  Serial.print(Ethernet.localIP());
+  Serial.print(":502");
   if (!modbusTCPServer.begin()) {
     Serial.println("Failed to initalize Modbus TCP");
     doNothing();
   }
 
-  modbusTCPServer.configureCoils(0x00, 5);
+  modbusTCPServer.configureCoils(0x00, 2);
+  modbusTCPServer.configureHoldingRegisters(0x02, 1);
+  modbusTCPServer.configureInputRegisters(0x03, 1);
 }
 
 void loop() {
@@ -77,25 +86,28 @@ void loop() {
     modbusTCPServer.accept(client);
 
     while (client.connected()) {
-      modbusTCPServer.poll()
+      modbusTCPServer.poll();
 
       // TODO set/read all apropriate pins here
     }
 
     Serial.println("Client Disconected");
+
+    logCoilsSerial();
   }
+
+
 }
 
 void logCoilsSerial() {
   int coilValues[] = {
     modbusTCPServer.coilRead(0x00),
     modbusTCPServer.coilRead(0x01),
-    modbusTCPServer.coilRead(0x02),
-    modbusTCPServer.coilRead(0x03),
-    modbusTCPServer.coilRead(0x04),
-  }
+    modbusTCPServer.holdingRegisterRead(0x02),
+    modbusTCPServer.inputRegisterRead(0x03),
+  };
 
-  for ( int i = 0; i < 5; i++ ) {
-    Serial.println("Coil " + String(i) + " value: " + String(coilValues))
+  for ( int i = 0; i < 4; i++ ) {
+    Serial.println("Coil " + String(i) + " value: " + String(coilValues[i]));
   }
 }
