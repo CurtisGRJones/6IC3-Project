@@ -94,6 +94,7 @@ void loop() {
     Serial.println("Client Disconected");
 
     logCoilsSerial();
+    generateNewValues();
   }
 
 
@@ -110,4 +111,19 @@ void logCoilsSerial() {
   for ( int i = 0; i < 4; i++ ) {
     Serial.println("Coil " + String(i) + " value: " + String(coilValues[i]));
   }
+}
+
+void generateNewValues() {
+  bool new1Value = !(modbusTCPServer.coilRead(0x00));
+  modbusTCPServer.coilWrite(0x00, new1Value);
+
+  int new2Value = modbusTCPServer.holdingRegisterRead(0x02);
+
+  new2Value += 1;
+
+  if ( new2Value > 255 ) {
+    new2Value = 0;
+  }
+
+  modbusTCPServer.holdingRegisterWrite(0x02, new2Value);
 }
