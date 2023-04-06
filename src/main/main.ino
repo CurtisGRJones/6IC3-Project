@@ -4,6 +4,7 @@
 #include <ArduinoModbus.h> // v1.0.8
 #include <SPI.h> // Ethernet depends on the API library
 #include <Ethernet.h> // v2.0.1
+#include <Servo.h>
 
 /* 
   Address Pin Device
@@ -19,9 +20,19 @@ IPAddress myDns(192, 168, 1, 1);
 IPAddress gateway(192, 168, 1, 1);
 IPAddress subnet(255, 255, 255, 0);
 
+int port = 502;
+int slaveId = 2;
+
 // Use port 502
-EthernetServer server(502);
+EthernetServer server(port);
 ModbusTCPServer modbusTCPServer;
+
+int potPin = A0;
+int ledPin = 9;
+int pbPin = 2;
+int servoPin = 3;
+
+Servo servo;
 
 /*
   // TODO move to README.MD
@@ -44,6 +55,10 @@ void logWithHint( char* message , char* hint ) {
 } 
 
 void setup() {
+  servo.attach(servoPin);
+  pinMode(ledPin, OUTPUT);
+  pinMode(pbPin, INPUT);
+  pinMode(potPin, INPUT);
   Ethernet.init(10);
 
   Ethernet.begin(mac, ip, myDns, gateway, subnet);
@@ -65,15 +80,19 @@ void setup() {
 
   Serial.print("Arduino Modbus Slave Address: ");
   Serial.print(Ethernet.localIP());
-  Serial.print(":502");
-  if (!modbusTCPServer.begin()) {
+  Serial.print(":");
+  Serial.println(port);
+  if (!modbusTCPServer.begin(slaveId)) {
     Serial.println("Failed to initalize Modbus TCP");
     doNothing();
   }
 
+  Serial.print("Slave ID: ");
+  Serial.println(slaveId);
+
   modbusTCPServer.configureCoils(0x00, 2);
-  modbusTCPServer.configureHoldingRegisters(0x02, 1);
-  modbusTCPServer.configureInputRegisters(0x03, 1);
+  modbusTCPServer.configureInputRegisters(0x00, 1);
+  modbusTCPServer.configureHoldingRegisters(0x00, 1);
 }
 
 void loop() {
@@ -83,47 +102,56 @@ void loop() {
   if (client) {
     Serial.println("New client connected");
 
+    Serial.println("Using Values");
+    logCoilsSerial();
+
     modbusTCPServer.accept(client);
 
     while (client.connected()) {
       modbusTCPServer.poll();
-
-      // TODO set/read all apropriate pins here
     }
 
     Serial.println("Client Disconected");
-
-    logCoilsSerial();
-    generateNewValues();
   }
-
-
+  updateValues();
 }
 
 void logCoilsSerial() {
-  int coilValues[] = {
+  long coilValues[] = {
     modbusTCPServer.coilRead(0x00),
     modbusTCPServer.coilRead(0x01),
-    modbusTCPServer.holdingRegisterRead(0x02),
-    modbusTCPServer.inputRegisterRead(0x03),
+    modbusTCPServer.inputRegisterRead(0x00),
+    modbusTCPServer.holdingRegisterRead(0x00),
   };
 
   for ( int i = 0; i < 4; i++ ) {
-    Serial.println("Coil " + String(i) + " value: " + String(coilValues[i]));
+    Serial.println("Device " + String(i) + " value: " + String(coilValues[i]));
   }
 }
 
-void generateNewValues() {
-  bool new1Value = !(modbusTCPServer.coilRead(0x00));
-  modbusTCPServer.coilWrite(0x00, new1Value);
+void updateValues() {
+  bool pbValue = digitalRead(pbPin);
+  modbusTCPServer.coilWrite(0x00, pbValue);
 
-  int new2Value = modbusTCPServer.holdingRegisterRead(0x02);
+  int potValue = analogRead(potPin);
+  modbusTCPServer.inputRegisterWrite(0x00, potValue);
 
-  new2Value += 1;
+  bool ledValue = modbusTCPServer.coilRead(0x01);
+  digitalWrite(ledPin, ledValue);
 
-  if ( new2Value > 255 ) {
-    new2Value = 0;
-  }
+  int servoValue = modbusTCPServer.holdingRegisterRead(0x00);
+  servo.write(servoValue);
 
-  modbusTCPServer.holdingRegisterWrite(0x02, new2Value);
+  // bool newButtonValue = !(modbusTCPServer.coilRead(0x00));
+  // modbusTCPServer.coilWrite(0x00, newButtonValue);
+
+  //long newPotValue = modbusTCPServer.inputRegisterRead(0x00);
+
+  //newPotValue += 1;
+
+  //if ( newPotValue > 255 ) {
+    //newPotValue = 0;
+  //}
+
+  //modbusTCPServer.inputRegisterWrite(0x00, newPotValue);
 }
