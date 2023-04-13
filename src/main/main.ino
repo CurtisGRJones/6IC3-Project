@@ -1,5 +1,3 @@
-// TODO ensure all github repos and versions are refenced in the README.md
-
 #include <ArduinoRS485.h> // ArduinoModbus depends on the ArduinoRS485 library
 #include <ArduinoModbus.h> // v1.0.8
 #include <SPI.h> // Ethernet depends on the API library
