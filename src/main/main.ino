@@ -6,12 +6,14 @@
 #include <Ethernet.h> // v2.0.1
 #include <Servo.h>
 
+// Setting values needed for ethernet
 byte mac[] = { 0xA8, 0x61, 0x0A, 0xAE, 0xAB, 0x14 };
 IPAddress ip(192, 168, 1, 100);
 IPAddress myDns(192, 168, 1, 1);
 IPAddress gateway(192, 168, 1, 1);
 IPAddress subnet(255, 255, 255, 0);
 
+// Setting port and slave ID for TCP client
 int port = 502;
 int slaveId = 0;
 
@@ -19,20 +21,13 @@ int slaveId = 0;
 EthernetServer server(port);
 ModbusTCPServer modbusTCPServer;
 
+// Device Pins
 int potPin = A0;
 int ledPin = 9;
 int pbPin = 2;
 int servoPin = 3;
 
 Servo servo;
-
-/*
-  // TODO move to README.MD
-  Tasks: 
-    - Create "Connected" LED to show if ethernet is working correctly
-    - Create "Processing" LED to show when the 
-    - Detemine if async should be used
-*/
 
 void doNothing() {
     while (true) {
@@ -47,10 +42,13 @@ void logWithHint( char* message , char* hint ) {
 } 
 
 void setup() {
+  // Setting Pins
   servo.attach(servoPin);
   pinMode(ledPin, OUTPUT);
   pinMode(pbPin, INPUT);
   pinMode(potPin, INPUT);
+  
+  //Initalizing MODBUS TCP
   Ethernet.init(10);
 
   Ethernet.begin(mac, ip, myDns, gateway, subnet);
@@ -81,7 +79,8 @@ void setup() {
 
   Serial.print("Slave ID: ");
   Serial.println(slaveId + 1);
-
+  
+  // Creating coils
   modbusTCPServer.configureCoils(0x00, 1);
   modbusTCPServer.configureDiscreteInputs(0x00, 1);
   modbusTCPServer.configureInputRegisters(0x00, 1);
