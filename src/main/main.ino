@@ -6,14 +6,6 @@
 #include <Ethernet.h> // v2.0.1
 #include <Servo.h>
 
-/* 
-  Address Pin Device
-  0x00        Push Button
-  0x01        LED
-  0x02        Light Sensor/Potentiometer
-  0x03        Servo
-*/
-
 byte mac[] = { 0xA8, 0x61, 0x0A, 0xAE, 0xAB, 0x14 };
 IPAddress ip(192, 168, 1, 100);
 IPAddress myDns(192, 168, 1, 1);
@@ -21,7 +13,7 @@ IPAddress gateway(192, 168, 1, 1);
 IPAddress subnet(255, 255, 255, 0);
 
 int port = 502;
-int slaveId = 2;
+int slaveId = 0;
 
 // Use port 502
 EthernetServer server(port);
@@ -88,9 +80,10 @@ void setup() {
   }
 
   Serial.print("Slave ID: ");
-  Serial.println(slaveId);
+  Serial.println(slaveId + 1);
 
-  modbusTCPServer.configureCoils(0x00, 2);
+  modbusTCPServer.configureCoils(0x00, 1);
+  modbusTCPServer.configureDiscreteInputs(0x00, 1);
   modbusTCPServer.configureInputRegisters(0x00, 1);
   modbusTCPServer.configureHoldingRegisters(0x00, 1);
 }
@@ -102,24 +95,24 @@ void loop() {
   if (client) {
     Serial.println("New client connected");
 
-    Serial.println("Using Values");
-    logCoilsSerial();
-
     modbusTCPServer.accept(client);
 
     while (client.connected()) {
+      readInputPins();
       modbusTCPServer.poll();
+      updateOutputPins();
     }
+
+    logCoilsSerial();
 
     Serial.println("Client Disconected");
   }
-  updateValues();
 }
 
 void logCoilsSerial() {
   long coilValues[] = {
+    modbusTCPServer.discreteInputRead(0x00),
     modbusTCPServer.coilRead(0x00),
-    modbusTCPServer.coilRead(0x01),
     modbusTCPServer.inputRegisterRead(0x00),
     modbusTCPServer.holdingRegisterRead(0x00),
   };
@@ -129,29 +122,18 @@ void logCoilsSerial() {
   }
 }
 
-void updateValues() {
+void readInputPins() {
   bool pbValue = digitalRead(pbPin);
-  modbusTCPServer.coilWrite(0x00, pbValue);
+  modbusTCPServer.discreteInputWrite(0x00, pbValue);
 
   int potValue = analogRead(potPin);
   modbusTCPServer.inputRegisterWrite(0x00, potValue);
+}
 
-  bool ledValue = modbusTCPServer.coilRead(0x01);
+void updateOutputPins() {
+  bool ledValue = modbusTCPServer.coilRead(0x00);
   digitalWrite(ledPin, ledValue);
 
   int servoValue = modbusTCPServer.holdingRegisterRead(0x00);
   servo.write(servoValue);
-
-  // bool newButtonValue = !(modbusTCPServer.coilRead(0x00));
-  // modbusTCPServer.coilWrite(0x00, newButtonValue);
-
-  //long newPotValue = modbusTCPServer.inputRegisterRead(0x00);
-
-  //newPotValue += 1;
-
-  //if ( newPotValue > 255 ) {
-    //newPotValue = 0;
-  //}
-
-  //modbusTCPServer.inputRegisterWrite(0x00, newPotValue);
 }
